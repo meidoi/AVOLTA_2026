@@ -1,6 +1,86 @@
+# ============================
+# AVOLTA_2026 - .gitignore
+# ============================
+
+# Node / NPM
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env / credenziali
 .env
-*.log
+.env.local
+.env.*
+*.pem
+*.key
+*.crt
+
+# Log applicativi
 logs/
-.DS_Store
+*.log
+debug.log
+
+# Build / cache
+dist/
+build/
+.cache/
+.tmp/
+.temp/
+
+# ============================
+# AVOLTA_Data - evitare saturazione repo
+# ============================
+
+# Escludo il mirror pesante AVOLTA_Data
+drive_sync/AVOLTA_Data/**
+
+# Snapshot leggeri (whitelist futura)
+# !drive_sync/AVOLTA_Data/_snapshots/**
+# !drive_sync/AVOLTA_Data/_metadata/**
+
+# File temporanei generici
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Binari pesanti
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+*.iso
+
+# Media pesanti
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wav
+*.flac
+
+# Database / backup
+*.sql
+*.sqlite
+*.db
+
+# File Office esportati
+*.pptx
+*.ppt
+*.xlsx
+*.xlsm
+*.xlsb
+*.docx
+*.doc
+*.pdf
+
+# Config generati
 folder-mapping.json
+
+# Sistema
+.DS_Store
+Thumbs.db
