@@ -23,7 +23,7 @@ class DriveSync3Days {
       const authConfig = {
         scopes: ['https://www.googleapis.com/auth/drive.readonly']
       };
-      
+
       const keyContent = process.env.GOOGLE_KEY_FILE;
       if (keyContent) {
         if (keyContent.trim().startsWith('{')) {
@@ -46,9 +46,9 @@ class DriveSync3Days {
   async listFolderContents(folderId, pageToken = null) {
     try {
       const { data: result } = await this.drive.files.list({
-q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
-            spaces: 'drive',
-            pageSize: 100,
+        q: `'${folderId}' in parents and trashed=false`,
+        spaces: 'drive',
+        pageSize: 100,
         fields: 'nextPageToken, files(id, name, mimeType, modifiedTime)',
         pageToken: pageToken
       });
@@ -101,14 +101,14 @@ q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
       const dest = fs.createWriteStream(destPath);
       return new Promise((resolve, reject) => {
         response.data.on('end', () => {
-          console.log(\`✓ Salvato: \${path.basename(destPath)}\`);
+          console.log(`✓ Salvato: ${path.basename(destPath)}`);
           resolve();
         });
         response.data.on('error', reject);
         response.data.pipe(dest);
       });
     } catch (err) {
-      console.error(\`✗ Errore download \${fileName}:\`, err.message);
+      console.error(`✗ Errore download ${fileName}:`, err.message);
     }
   }
 
@@ -119,6 +119,7 @@ q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
 
     let allFiles = [];
     let pageToken = null;
+
     do {
       const { files, nextPageToken } = await this.listFolderContents(folderId, pageToken);
       allFiles = allFiles.concat(files);
@@ -137,17 +138,17 @@ q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
 
   async performSync() {
     const timestamp = new Date().toISOString();
-    console.log(\`[\${timestamp}] 🔄 Avvio sincronizzazione cartella Drive...\`);
-    
+    console.log(`[${timestamp}] 🔄 Avvio sincronizzazione cartella Drive...`);
+
     try {
       const folderId = process.env.DRIVE_FOLDER_ID || this.config.source.folderId;
       const syncPath = path.join(process.cwd(), this.config.destination.path);
-      
-      console.log(\`📂 Folder ID: \${folderId}\`);
-      console.log(\`📍 Destinazione: \${this.config.destination.path}\`);
+
+      console.log(`📂 Folder ID: ${folderId}`);
+      console.log(`📍 Destinazione: ${this.config.destination.path}`);
 
       await this.syncFolderRecursive(folderId, syncPath);
-      console.log(\`✓ Sync completato: \${this.config.destination.path}\`);
+      console.log(`✓ Sync completato: ${this.config.destination.path}`);
     } catch (err) {
       console.error('✗ Errore sync:', err.message);
     }
@@ -169,9 +170,9 @@ q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
       cron.schedule(cronExpr, () => {
         this.performSync();
       }, {
-        timezone: this.config.schedule.timezone || "Europe/Rome"
+        timezone: this.config.schedule.timezone || 'Europe/Rome'
       });
-      console.log(\`📅 Prossimo sync programmato: \${cronExpr}\`);
+      console.log(`📅 Prossimo sync programmato: ${cronExpr}`);
     }
   }
 }
