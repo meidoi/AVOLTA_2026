@@ -23,7 +23,7 @@ class DriveSync3Days {
       const authConfig = {
         scopes: ['https://www.googleapis.com/auth/drive.readonly']
       };
-      
+
       const keyContent = process.env.GOOGLE_KEY_FILE;
       if (keyContent) {
         if (keyContent.trim().startsWith('{')) {
@@ -36,9 +36,9 @@ class DriveSync3Days {
       this.auth = new GoogleAuth(authConfig);
       const authClient = await this.auth.getClient();
       this.drive = google.drive({ version: 'v3', auth: authClient });
-      console.log('✓ Autenticazione Google Drive completata');
+      console.log('Autenticazione Google Drive completata');
     } catch (err) {
-      console.error('✗ Errore autenticazione:', err.message);
+      console.error('Errore autenticazione:', err.message);
       process.exit(1);
     }
   }
@@ -46,9 +46,9 @@ class DriveSync3Days {
   async listFolderContents(folderId, pageToken = null) {
     try {
       const { data: result } = await this.drive.files.list({
-q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
-            spaces: 'drive',
-            pageSize: 100,
+        q: `'${folderId}' in parents and trashed=false`,
+        spaces: 'drive',
+        pageSize: 100,
         fields: 'nextPageToken, files(id, name, mimeType, modifiedTime)',
         pageToken: pageToken
       });
@@ -68,7 +68,6 @@ q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
       if (mimeType.startsWith('application/vnd.google-apps.')) {
         let exportMimeType;
         let extension;
-
         if (mimeType.includes('spreadsheet')) {
           exportMimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
           extension = '.xlsx';
@@ -82,11 +81,9 @@ q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
           exportMimeType = 'application/pdf';
           extension = '.pdf';
         }
-
         if (!destPath.toLowerCase().endsWith(extension)) {
           destPath += extension;
         }
-
         response = await this.drive.files.export(
           { fileId, mimeType: exportMimeType },
           { responseType: 'stream' }
@@ -101,14 +98,14 @@ q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
       const dest = fs.createWriteStream(destPath);
       return new Promise((resolve, reject) => {
         response.data.on('end', () => {
-          console.log(\`✓ Salvato: \${path.basename(destPath)}\`);
+          console.log('Salvato: ' + path.basename(destPath));
           resolve();
         });
         response.data.on('error', reject);
         response.data.pipe(dest);
       });
     } catch (err) {
-      console.error(\`✗ Errore download \${fileName}:\`, err.message);
+      console.error('Errore download ' + fileName + ':', err.message);
     }
   }
 
@@ -116,7 +113,6 @@ q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
     if (!fs.existsSync(localPath)) {
       fs.mkdirSync(localPath, { recursive: true });
     }
-
     let allFiles = [];
     let pageToken = null;
     do {
@@ -137,26 +133,22 @@ q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
 
   async performSync() {
     const timestamp = new Date().toISOString();
-    console.log(\`[\${timestamp}] 🔄 Avvio sincronizzazione cartella Drive...\`);
-    
+    console.log('[' + timestamp + '] Avvio sincronizzazione cartella Drive...');
     try {
       const folderId = process.env.DRIVE_FOLDER_ID || this.config.source.folderId;
       const syncPath = path.join(process.cwd(), this.config.destination.path);
-      
-      console.log(\`📂 Folder ID: \${folderId}\`);
-      console.log(\`📍 Destinazione: \${this.config.destination.path}\`);
-
+      console.log('Folder ID: ' + folderId);
+      console.log('Destinazione: ' + this.config.destination.path);
       await this.syncFolderRecursive(folderId, syncPath);
-      console.log(\`✓ Sync completato: \${this.config.destination.path}\`);
+      console.log('Sync completato: ' + this.config.destination.path);
     } catch (err) {
-      console.error('✗ Errore sync:', err.message);
+      console.error('Errore sync:', err.message);
     }
   }
 
   start() {
-    console.log('🤖 Agent Sync Drive - AVOLTA_2026');
+    console.log('Agent Sync Drive - AVOLTA_2026');
     console.log('======================================');
-
     this.performSync().then(() => {
       if (process.env.GITHUB_ACTIONS) {
         console.log('Esecuzione completata.');
@@ -169,9 +161,9 @@ q: `'${folderId}' in parents and trashed=false`,        spaces: 'drive',
       cron.schedule(cronExpr, () => {
         this.performSync();
       }, {
-        timezone: this.config.schedule.timezone || "Europe/Rome"
+        timezone: this.config.schedule.timezone || 'Europe/Rome'
       });
-      console.log(\`📅 Prossimo sync programmato: \${cronExpr}\`);
+      console.log('Prossimo sync programmato: ' + cronExpr);
     }
   }
 }
